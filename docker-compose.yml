@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  api:
+    image: pro-manage-api
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: development
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: sh -c "npm run db:dev:deploy && npm run start"
+    environment:
+      - .env
+    depends_on:
+      - devdb
+    ports:
+      - ${PORT}:8000
+
+
+  devdb:
+    image: postgres:13
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: $POSTGRES_DEV_APP_DOCKER_USER
+      POSTGRES_PASSWORD: $POSTGRES_DEV_APP_DOCKER_PASSWORD
+      POSTGRES_DB: $POSTGRES_DEV_APP_DOCKER_DATABASE
+  
+  test-db:
+    image: postgres:13
+    restart: always
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: $POSTGRES_DEV_APP_DOCKER_USER
+      POSTGRES_PASSWORD: $POSTGRES_DEV_APP_DOCKER_PASSWORD
+      POSTGRES_DB: $POSTGRES_DEV_APP_DOCKER_DATABASE
+
+  postgres_admin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+    ports:
+      - '5050:80'
+    depends_on:
+      - devdb
+

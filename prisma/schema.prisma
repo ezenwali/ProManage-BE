@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PGDATABASE_URL")
+}
+
+// UserVerificationModel
+model UserVerificationCode {
+  id        String   @id
+  email     String   @unique()
+  code      Int
+  createdAt DateTime @default(now())
+}
+
+//
+
+// UserModel
+model User {
+  email       String        @unique()
+  id          String        @id
+  password    String
+  createdAt   DateTime      @default(now())
+  userType    UserType
+  Project     Project[]
+  ProjectTeam ProjectTeam[]
+}
+
+enum UserType {
+  Email_Password
+  Google
+  Apple
+}
+
+//
+
+// ProjectModel
+model Project {
+  id          String        @id
+  creatorId   String        @db.VarChar(255)
+  title       String
+  createdAt   DateTime      @default(now())
+  description String
+  creator     User          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  Tag         Tag[]
+  ProjectTeam ProjectTeam[]
+  Stage       Stage[]
+}
+
+//
+
+// Tag
+model Tag {
+  projectID String
+  tagName   String
+  creator   Project @relation(fields: [projectID], references: [id], onDelete: Cascade)
+
+  @@id([projectID, tagName])
+}
+
+//
+
+// ProjectTeam
+
+model ProjectTeam {
+  projectID String
+  userID    String
+  isOwner   Boolean
+
+  project Project @relation(fields: [projectID], references: [id])
+  user    User    @relation(fields: [userID], references: [id])
+
+  @@id([projectID, userID])
+}
+
+// schema.prisma
+
+model Stage {
+  projectID String
+  name      String
+  type      StageType // Defining type as StageType enum
+
+  project Project @relation(fields: [projectID], references: [id])
+
+  @@id([projectID, name])
+}
+
+enum StageType {
+  default
+  created
+}
