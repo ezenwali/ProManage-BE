@@ -80,7 +80,7 @@ export class AuthController implements IAuthController {
 
     return {
       status: 200,
-      message: 'Login successful',
+      message: 'Registration successful',
     };
   }
 
@@ -91,8 +91,6 @@ export class AuthController implements IAuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
   async googleRedirect(@Req() req: CustomRequest, @Res() res: Response) {
-    console.log('here redirect');
-
     if (req.user && req.user.getUserType() == 'Google') {
       res.redirect(environmentVariables.frontEndUrl);
 
