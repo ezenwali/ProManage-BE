@@ -7,6 +7,8 @@ export class GoogleAuthGuard extends AuthGuard('google') {
     try {
       const activate = (await super.canActivate(context)) as boolean;
       const request = context.switchToHttp().getRequest();
+      console.log('can activate');
+
       await super.logIn(request);
       return activate;
     } catch (error) {

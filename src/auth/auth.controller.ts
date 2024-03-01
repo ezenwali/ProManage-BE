@@ -9,6 +9,11 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { CustomRequest } from 'src/common/interfaces/customRequest';
+import { environmentVariables } from 'src/config/env.variables';
+import { GoogleAuthGuard } from 'src/config/guards/googleAuth.guard';
 import { AuthService } from './auth.service';
 import {
   GenerateVerificationCodeDto,
@@ -16,14 +21,10 @@ import {
   RegisterUserDto,
   VerificationCodeResult,
 } from './dto';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { GoogleAuthGuard } from 'src/config/guards/googleAuth.guard';
-import { environmentVariables } from 'src/config/env.variables';
-import { Response } from 'express';
-import { CustomRequest } from 'src/common/interfaces/customRequest';
+import { IAuthController } from './interfaces/controller';
 @ApiTags('Authentication')
 @Controller('auth')
-export class AuthController {
+export class AuthController implements IAuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiCreatedResponse({ type: VerificationCodeResult })
@@ -31,8 +32,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async generateVerificationCode(
     @Body() { email }: GenerateVerificationCodeDto,
-  ): Promise<VerificationCodeResult> {
-    return await this.authService.generateVerificationCode(email);
+  ) {
+    const response = await this.authService.generateVerificationCode(email);
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Code sent',
+      data: response,
+    };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -41,7 +48,7 @@ export class AuthController {
   async login(
     @Body() dto: LoginUserDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
+  ) {
     const response = await this.authService.login(dto);
 
     res.cookie('user_token', response.token, {
@@ -49,6 +56,11 @@ export class AuthController {
         Date.now() + Number(environmentVariables.session.sessionaaxAge),
       ),
     });
+
+    return {
+      status: 200,
+      message: 'Login successful',
+    };
   }
 
   @HttpCode(HttpStatus.CREATED)
@@ -57,7 +69,7 @@ export class AuthController {
   async register(
     @Body() dto: RegisterUserDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<void> {
+  ) {
     const response = await this.authService.register(dto);
 
     res.cookie('user_token', response.token, {
@@ -65,6 +77,11 @@ export class AuthController {
         Date.now() + Number(environmentVariables.session.sessionaaxAge),
       ),
     });
+
+    return {
+      status: 200,
+      message: 'Login successful',
+    };
   }
 
   @UseGuards(GoogleAuthGuard)
@@ -74,6 +91,8 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
   async googleRedirect(@Req() req: CustomRequest, @Res() res: Response) {
+    console.log('here redirect');
+
     if (req.user && req.user.getUserType() == 'Google') {
       res.redirect(environmentVariables.frontEndUrl);
 
