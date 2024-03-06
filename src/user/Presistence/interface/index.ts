@@ -1,3 +1,5 @@
+import { AuthUserEntity } from 'src/auth/Base/AuthUserEntity';
+
 export abstract class IUserRepository {
-  abstract getUserProfile(id: string): Promise<void>;
+  abstract getUsers(): Promise<AuthUserEntity[]>;
 }
