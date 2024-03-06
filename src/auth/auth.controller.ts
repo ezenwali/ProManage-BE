@@ -9,9 +9,10 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CustomRequest } from 'src/common/interfaces/customRequest';
+import { ApiCustomResponse } from 'src/common/interfaces/response.type';
 import { environmentVariables } from 'src/config/env.variables';
 import { GoogleAuthGuard } from 'src/config/guards/googleAuth.guard';
 import { AuthService } from './auth.service';
@@ -27,7 +28,7 @@ import { IAuthController } from './interfaces/controller';
 export class AuthController implements IAuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiCreatedResponse({ type: VerificationCodeResult })
+  @ApiCustomResponse(HttpStatus.CREATED, VerificationCodeResult)
   @Post('genrate-code')
   @HttpCode(HttpStatus.OK)
   async generateVerificationCode(
@@ -43,7 +44,7 @@ export class AuthController implements IAuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
+  @ApiCustomResponse(HttpStatus.OK)
   @Post('login')
   async login(
     @Body() dto: LoginUserDto,
@@ -65,7 +66,7 @@ export class AuthController implements IAuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  @ApiCreatedResponse()
+  @ApiCustomResponse(HttpStatus.CREATED)
   async register(
     @Body() dto: RegisterUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -79,7 +80,7 @@ export class AuthController implements IAuthController {
     });
 
     return {
-      status: 200,
+      status: HttpStatus.OK,
       message: 'Registration successful',
     };
   }

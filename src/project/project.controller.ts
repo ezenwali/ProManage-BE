@@ -1,21 +1,21 @@
 import {
   Body,
-  HttpCode,
   Controller,
+  Get,
+  HttpCode,
   HttpStatus,
   Injectable,
+  Param,
   Post,
   UseGuards,
-  Get,
-  Param,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/config/guards/auth.guard';
-import { AddTagDto, AddTeamMemberDto, CreateProjectDto } from './dto';
-import { ProjectService } from './project.service';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { GetUser } from 'src/decorator/getUser';
 import { AuthUserEntity } from 'src/auth/Base/AuthUserEntity';
+import { AuthGuard } from 'src/config/guards/auth.guard';
+import { GetUser } from 'src/decorator/getUser';
+import { AddTagDto, AddTeamMemberDto, CreateProjectDto } from './dto';
 import { ProjectsResultDto } from './dto/response.dto';
+import { ProjectService } from './project.service';
 
 @Injectable()
 @UseGuards(AuthGuard)

@@ -1,5 +1,5 @@
 export enum userType {
-  Email_Password,
-  Google,
-  Apple,
+  Email_Password = 'Email_Password',
+  Google = 'Google',
+  Apple = 'Apple',
 }

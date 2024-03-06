@@ -8,6 +8,6 @@ export class UserResult {
   email: string;
   @ApiProperty()
   createdAt: Date;
-  @ApiProperty()
+  @ApiProperty({ enum: userType })
   userType: keyof typeof userType;
 }

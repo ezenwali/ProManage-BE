@@ -1,13 +1,13 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { environmentVariables } from './config/env.variables';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import * as PackageJson from '../package.json';
-import * as passport from 'passport';
+import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { restrictUrl } from './middlewares/restrictUrls';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as passport from 'passport';
+import * as PackageJson from '../package.json';
+import { AppModule } from './app.module';
 import { _session } from './common/app';
+import { environmentVariables } from './config/env.variables';
+import { restrictUrl } from './middlewares/restrictUrls';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -33,6 +33,7 @@ async function bootstrap() {
     .setTitle(PackageJson.name)
     .setDescription('Pro-manage BE')
     .setVersion(PackageJson.version)
+    .addCookieAuth('session', { type: 'apiKey', in: 'cookie' })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
